@@ -1,6 +1,6 @@
 import re
 import yaml
-import frontmatter
+import logging
 
 
 class FrontmatterApi:
@@ -35,3 +35,14 @@ class FrontmatterApi:
         yaml_frontmatter = self.get_yaml_frontmatter(file)
         yaml_frontmatter[attr] = value
         self.write_yaml_frontmatter(file, yaml_frontmatter)
+
+    def get_yaml_value_from_str(self, yaml_str):
+        return yaml.safe_load(yaml_str)
+
+    def remove_yaml_attr(self, file, attr):
+        yaml_frontmatter = self.get_yaml_frontmatter(file)
+        if attr in yaml_frontmatter:
+            del yaml_frontmatter[attr]
+            self.write_yaml_frontmatter(file, yaml_frontmatter)
+        else:
+            logging.warning(f"Attribute {attr} not found in frontmatter of {file}")

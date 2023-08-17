@@ -64,6 +64,7 @@ def replace(path, regex, new, recursive):
 @click.argument('directory', type=str, required=False, default='./', callback=validate_path)
 @click.option('-t', '--tag', 'tags', type=str, multiple=True)
 @click.option('-r', '--recursive', is_flag=True, default=False, help="Browse directories recursively", show_default=True)
+@click.confirmation_option(prompt="Are you sure you want to remove tags from files in your vault?")
 def remove_tags(directory, tags, recursive):
     files = api.fs_api.listdir(directory, recursive=recursive)
     for file in files:
@@ -81,6 +82,7 @@ def remove_tags(directory, tags, recursive):
 @click.option('-t', '--tag', 'tags', type=str, multiple=True)
 @click.option('-r', '--recursive', is_flag=True, default=False, help="Browse directories recursively", show_default=True)
 @click.option('-n', '--number', type=int, default=None, help="Add tags to n random files")
+@click.confirmation_option(prompt="Are you sure you want to add tags to files in your vault?")
 def add_tags(directory, tags, recursive, number):
     files = api.fs_api.listdir(directory, recursive=recursive)
     if number is not None:
@@ -95,6 +97,18 @@ def add_tags(directory, tags, recursive, number):
             api.frontmatter_api.update_yaml_frontmatter(file, 'tags', tags_in_yaml)
         else:
             api.frontmatter_api.update_yaml_frontmatter(file, 'tags', tags)
+
+
+@cli.command(help="Edit frontmatter of files")
+@click.argument('directory', type=str, required=False, default='./', callback=validate_path)
+@click.argument('attribute', type=str)
+@click.argument('value', type=str, required=False, default=None)
+@click.option('-r', '--recursive', is_flag=True, default=False, help="Browse directories recursively", show_default=True)
+@click.confirmation_option(prompt="Are you sure you want to edit frontmatter of files in your vault?")
+def edit_frontmatter(directory, attribute, value, recursive):
+    files = api.fs_api.listdir(directory, recursive=recursive)
+    for file in files:
+        api.frontmatter_api.update_yaml_frontmatter(file, attribute, api.frontmatter_api.get_yaml_value_from_str(value)) if value else api.frontmatter_api.remove_yaml_attr(file, attribute)
 
 
 if __name__ == '__main__':
