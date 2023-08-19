@@ -1,13 +1,13 @@
-import re
-import yaml
 import logging
+import re
+
+import yaml
 
 
 class FrontmatterApi:
-
     def __init__(self, fs_api):
         self._fs_api = fs_api
-        self._yaml_frontmatter_regex = r'^---([\s\S]+?)---'
+        self._yaml_frontmatter_regex = r"^---([\s\S]+?)---"
 
     def get_yaml_frontmatter(self, file):
         file_content = self._fs_api.read_file(file)
@@ -15,8 +15,8 @@ class FrontmatterApi:
         if matches:
             yaml_string = matches[0]
             metadata = yaml.safe_load(yaml_string)
-            if 'tags' in metadata and type(metadata['tags']) == str:
-                metadata['tags'] = metadata['tags'].split()
+            if "tags" in metadata and isinstance(metadata["tags"], str):
+                metadata["tags"] = metadata["tags"].split()
             return metadata
 
     def write_yaml_frontmatter(self, file, yaml_dict):

@@ -1,30 +1,41 @@
-import re
 import difflib
+import re
 
 
 class BacklinksApi:
-
     def __init__(self, fs_api):
         self._fs_api = fs_api
 
     def get_backlinks(self, dir, existing=None):
         dir = self._fs_api.format_path(dir)
 
-        backlinks_regex = r'\[\[([\w\d\s-]*)\|?\w*\]\]'
+        backlinks_regex = r"\[\[([\w\d\s-]*)\|?\w*\]\]"
         backlinks = []
         for file in self._fs_api.listdir(dir, recursive=True):
-            if file.endswith('.md'):
+            if file.endswith(".md"):
                 content = self._fs_api.read_file(file)
                 backlinks += re.findall(backlinks_regex, content)
 
         backlinks = list(set(backlinks))
 
         if existing:
-            created_backlinks = [file.split('/')[-1].split('.')[0] for file in self._fs_api.listdir(dir, recursive=True) if file.endswith('.md')]
-            backlinks = [backlink for backlink in backlinks if backlink in created_backlinks]
+            created_backlinks = [
+                file.split("/")[-1].split(".")[0]
+                for file in self._fs_api.listdir(dir, recursive=True)
+                if file.endswith(".md")
+            ]
+            backlinks = [
+                backlink for backlink in backlinks if backlink in created_backlinks
+            ]
         elif existing is False:
-            created_backlinks = [file.split('/')[-1].split('.')[0] for file in self._fs_api.listdir(dir, recursive=True) if file.endswith('.md')]
-            backlinks = [backlink for backlink in backlinks if backlink not in created_backlinks]
+            created_backlinks = [
+                file.split("/")[-1].split(".")[0]
+                for file in self._fs_api.listdir(dir, recursive=True)
+                if file.endswith(".md")
+            ]
+            backlinks = [
+                backlink for backlink in backlinks if backlink not in created_backlinks
+            ]
 
         return backlinks
 
@@ -45,11 +56,13 @@ class BacklinksApi:
                     matches.append((backlink, existing_backlink))
 
             if not match:
-                matches_ = difflib.get_close_matches(backlink, existing_backlinks, n=1, cutoff=cutoff)
+                matches_ = difflib.get_close_matches(
+                    backlink, existing_backlinks, n=1, cutoff=cutoff
+                )
                 if len(matches_) > 0:
                     matches.append((backlink, matches_[0]))
 
         return matches
 
     def clean_backlink(self, backlink):
-        return re.sub(r' - \d+$', '', backlink)
+        return re.sub(r" - \d+$", "", backlink)

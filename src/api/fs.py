@@ -1,11 +1,11 @@
-import os
-import yaml
-import re
 import logging
+import os
+import re
+
+import yaml
 
 
 class FSApi:
-
     def __init__(self, config_path):
         self._config_path = config_path
         self._root = None
@@ -23,23 +23,23 @@ class FSApi:
         return path.startswith(self._root)
 
     def get_vault_path(self):
-        with open(self._config_path, 'r', encoding='latin-1') as f:
+        with open(self._config_path, "r", encoding="latin-1") as f:
             config = yaml.safe_load(f.read())
 
-        vault_path = config['vault_path']
+        vault_path = config["vault_path"]
         if os.path.exists(vault_path):
             logging.info(f"Got vault path: {vault_path}")
             self._root = vault_path
             return vault_path
         raise Exception(f"Can't find vault at {vault_path}")
 
-    def read_file(self, file_path, encoding='latin-1'):
+    def read_file(self, file_path, encoding="latin-1"):
         file_path = self.format_path(file_path)
 
         if not os.path.isfile(file_path):
             raise FileNotFoundError(f"{file_path} is not a file")
 
-        with open(file_path, 'r', encoding=encoding) as f:
+        with open(file_path, "r", encoding=encoding) as f:
             logging.debug(f"Reading {file_path}")
             return f.read()
 
@@ -56,17 +56,21 @@ class FSApi:
             for root, _, files in os.walk(dir_path):
                 for file in files:
                     files_.append(os.path.join(root, file))
-            return [file for file in files_ if file.endswith('.md')]
+            return [file for file in files_ if file.endswith(".md")]
 
-        return [os.path.join(dir_path, file) for file in os.listdir(dir_path) if file.endswith('.md')]
+        return [
+            os.path.join(dir_path, file)
+            for file in os.listdir(dir_path)
+            if file.endswith(".md")
+        ]
 
-    def write_file(self, file_path, content, encoding='latin-1'):
+    def write_file(self, file_path, content, encoding="latin-1"):
         file_path = self.format_path(file_path)
 
         if os.path.isfile(file_path):
             logging.debug(f"Overwriting {file_path}")
 
-        with open(file_path, 'w', encoding=encoding) as f:
+        with open(file_path, "w", encoding=encoding) as f:
             logging.debug(f"Writing to {file_path}")
             f.write(content)
 

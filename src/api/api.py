@@ -1,17 +1,17 @@
-import os
 import logging
-from termcolor import colored
-import yaml
+import os
 
-from src.api.fs import FSApi
+import yaml
+from termcolor import colored
+
 from src.api.backlinks import BacklinksApi
 from src.api.frontmatter import FrontmatterApi
+from src.api.fs import FSApi
 from src.colored_formatter import ColoredFormatter
 
 
 class Api:
-
-    def __init__(self, config_path='config.yaml'):
+    def __init__(self, config_path="config.yaml"):
         if not os.path.exists(config_path):
             raise Exception(f"Config not found: {config_path}")
         self._config_path = config_path
@@ -27,16 +27,22 @@ class Api:
         logging.info("API configured")
 
     def _configure_logging(self):
-
-        time_color = 'cyan'
-        formatter = ColoredFormatter(fmt=colored('%(asctime)s', time_color) + ' - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+        time_color = "cyan"
+        formatter = ColoredFormatter(
+            fmt=colored("%(asctime)s", time_color) + " - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
 
-        with open(self._config_path, 'r') as f:
+        with open(self._config_path, "r") as f:
             yaml_metadata = yaml.safe_load(f)
-            level_str = yaml_metadata['logging_level'] if 'logging_level' in yaml_metadata else 'INFO'
+            level_str = (
+                yaml_metadata["logging_level"]
+                if "logging_level" in yaml_metadata
+                else "INFO"
+            )
 
         logging.basicConfig(level=level_str, handlers=[handler])
 
-        logging.info('Logging configured')
+        logging.info("Logging configured")
