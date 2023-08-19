@@ -23,7 +23,7 @@ class FSApi:
         return path.startswith(self._root)
 
     def get_vault_path(self):
-        with open(self._config_path, 'r', encoding='utf-8') as f:
+        with open(self._config_path, 'r', encoding='latin-1') as f:
             config = yaml.safe_load(f.read())
 
         vault_path = config['vault_path']
@@ -33,7 +33,7 @@ class FSApi:
             return vault_path
         raise Exception(f"Can't find vault at {vault_path}")
 
-    def read_file(self, file_path, encoding='utf-8'):
+    def read_file(self, file_path, encoding='latin-1'):
         file_path = self.format_path(file_path)
 
         if not os.path.isfile(file_path):
@@ -60,7 +60,7 @@ class FSApi:
 
         return [os.path.join(dir_path, file) for file in os.listdir(dir_path) if file.endswith('.md')]
 
-    def write_file(self, file_path, content, encoding='utf-8'):
+    def write_file(self, file_path, content, encoding='latin-1'):
         file_path = self.format_path(file_path)
 
         if os.path.isfile(file_path):

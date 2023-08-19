@@ -37,8 +37,10 @@ def match_backlinks(directory, cutoff, replace):
         if replace:
             rep = input(f"{colored(not_existing_backlink, 'red')} -> {colored(existing_backlink, 'green')} [y/N]")
             if rep == 'y':
-                backlink_regex = rf"\[\[{not_existing_backlink}\]\]"
-                api.fs_api.replace_in_dir(directory, backlink_regex, existing_backlink, recursive=True)
+                backlink_regexs = [rf"\[\[{not_existing_backlink}\]\]", rf"\[\[{not_existing_backlink}\|.*\]\]"]
+                existing_backlink = f"[[{existing_backlink}]]"
+                for backlink_regex in backlink_regexs:
+                    api.fs_api.replace_in_dir(directory, backlink_regex, existing_backlink, recursive=True)
 
 
 @cli.command(help="Find backlinks in vault")
@@ -69,12 +71,13 @@ def remove_tags(directory, tags, recursive):
     files = api.fs_api.listdir(directory, recursive=recursive)
     for file in files:
         yaml_frontmatter = api.frontmatter_api.get_yaml_frontmatter(file)
-        if 'tags' in yaml_frontmatter:
-            tags_in_yaml = yaml_frontmatter['tags']
-            for tag in tags:
-                if tag in tags_in_yaml:
-                    tags_in_yaml.remove(tag)
-            api.frontmatter_api.update_yaml_frontmatter(file, 'tags', tags_in_yaml)
+        if yaml_frontmatter:
+            if 'tags' in yaml_frontmatter:
+                tags_in_yaml = yaml_frontmatter['tags']
+                for tag in tags:
+                    if tag in tags_in_yaml:
+                        tags_in_yaml.remove(tag)
+                api.frontmatter_api.update_yaml_frontmatter(file, 'tags', tags_in_yaml)
 
 
 @cli.command(help="Add tags to files")
