@@ -32,6 +32,7 @@ class FrontmatterApi:
         self._fs_api.write_file(file, new_content)
 
     def update_yaml_frontmatter(self, file, attr, value):
+        logging.info(f"Updating {attr} in frontmatter of {file} to {value}")
         yaml_frontmatter = self.get_yaml_frontmatter(file)
         yaml_frontmatter[attr] = value
         self.write_yaml_frontmatter(file, yaml_frontmatter)

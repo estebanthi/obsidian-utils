@@ -1,4 +1,5 @@
 import random
+import logging
 
 import click
 from termcolor import colored
@@ -43,7 +44,11 @@ def validate_path(ctx, param, value):
     "-r", "--replace", is_flag=True, default=False, help="Ask user to replace backlinks"
 )
 def match_backlinks(directory, cutoff, replace):
+    logging.info(f"Matching backlinks in {directory}")
     matches = api.backlinks_api.match_backlinks(directory, cutoff)
+    if not matches:
+        logging.info("No backlinks to match")
+        return
     for not_existing_backlink, existing_backlink in matches:
         if not replace:
             print(
@@ -97,6 +102,7 @@ def find_backlinks(path, existing):
     prompt="Are you sure you want to replace files in your vault?"
 )
 def replace(path, regex, new, recursive):
+    logging.info(f"Replacing {regex} by {new} in {path}")
     api.fs_api.replace_in_dir(path, regex, new, recursive=recursive)
 
 
@@ -117,6 +123,7 @@ def replace(path, regex, new, recursive):
     prompt="Are you sure you want to remove tags from files in your vault?"
 )
 def remove_tags(directory, tags, recursive):
+    logging.info(f"Removing tags from files in {directory}")
     files = api.fs_api.listdir(directory, recursive=recursive)
     for file in files:
         yaml_frontmatter = api.frontmatter_api.get_yaml_frontmatter(file)
@@ -149,6 +156,7 @@ def remove_tags(directory, tags, recursive):
     prompt="Are you sure you want to add tags to files in your vault?"
 )
 def add_tags(directory, tags, recursive, number):
+    logging.info(f"Adding tags to files in {directory}")
     files = api.fs_api.listdir(directory, recursive=recursive)
     if number is not None:
         files = random.sample(files, number)
@@ -180,9 +188,10 @@ def add_tags(directory, tags, recursive, number):
     show_default=True,
 )
 @click.confirmation_option(
-    prompt="Are you sure you want to edit frontmatter of files in your vault?"
+    prompt="Are you sure you want to edit frontmatter of files in the specified directory?"
 )
 def edit_frontmatter(directory, attribute, value, recursive):
+    logging.info(f"Editing frontmatter of files in {directory}")
     files = api.fs_api.listdir(directory, recursive=recursive)
     for file in files:
         api.frontmatter_api.update_yaml_frontmatter(
